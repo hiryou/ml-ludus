@@ -5,5 +5,5 @@ package com.ml.datastructure;
  */
 public interface ILinearModel<TVector> {
 
-    int classify(TVector tVector);
+    boolean classify(TVector tVector);
 }

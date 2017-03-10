@@ -1,13 +1,10 @@
 package com.ml.datastructure;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import javafx.util.Pair;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -28,6 +25,13 @@ public class NeuronLinearDiscriminantLearner<TVector extends NumberVector> imple
     @Override
     public void addDataPoint(TVector tVector, boolean target) {
         data.add(new Pair(tVector.withBias(BIAS_INPUT), target));
+    }
+
+    @Override
+    public void addDataPoints(List<Pair<TVector, Boolean>> dataPoints) {
+        for (Pair<TVector, Boolean> pair: dataPoints) {
+            addDataPoint(pair.getKey(), pair.getValue());
+        }
     }
 
     @Override

@@ -12,10 +12,10 @@ public class LinearModel<TVector extends NumberVector> implements ILinearModel<T
     private final int biasInput;
 
     @Override
-    public int classify(TVector tVector) {
+    public boolean classify(TVector tVector) {
         double y = weights.dotProductWith(
                 tVector.withBias(biasInput))
                 .doubleValue();
-        return (y > 0) ?1 :0;
+        return y > 0;
     }
 }
