@@ -1,11 +1,9 @@
 package com.ml.learning;
 
-import com.ml.datastructure.ILinearDiscriminantLearner;
-import com.ml.datastructure.ILinearModel;
-import com.ml.datastructure.NeuronLinearDiscriminantLearner;
+import com.ml.datastructure.ILinearDiscriminantNeuron;
+import com.ml.datastructure.LinearDiscriminantNeuron;
 import com.ml.datastructure.NumberVector;
 import com.ml.evaluation.Evaluator;
-import com.ml.evaluation.IEvaluator;
 import javafx.util.Pair;
 
 import java.util.Arrays;
@@ -27,15 +25,18 @@ public class OrFunction {
                 new Pair<FeatureVector, Boolean>(new FeatureVector(1, 0), true),
                 new Pair<FeatureVector, Boolean>(new FeatureVector(1, 1), true)
         );
-        ILinearDiscriminantLearner<FeatureVector> learner = new NeuronLinearDiscriminantLearner<FeatureVector>(25, 0.05d);
-        IEvaluator<FeatureVector> eval = new Evaluator<FeatureVector>();
+
+        ILinearDiscriminantNeuron<FeatureVector> simpleNeuron = new LinearDiscriminantNeuron<>();
 
         for (int t=0; t<8; t++) {
-            learner.resetData();
-            learner.addDataPoints(data);
+            ILinearDiscriminantNeuron.ITrainingSession trainingSession =
+                    simpleNeuron.resetIntelligence().addKnowledgeData(data)
+                            .newTrainingSession()
+                            .iterationCount(25)
+                            .learningRate(0.05);
+            trainingSession.train();
 
-            ILinearModel model = learner.train();
-            System.out.println(String.format("Accuracy = %f", eval.getAccuracyRatio(data, model)));
+            System.out.println(String.format("Accuracy = %f", Evaluator.getAccuracyRatio(data, simpleNeuron)));
         }
     }
 

@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.Validate;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * Created by longuy on 3/10/2017.
  */
+@Immutable
 @RequiredArgsConstructor
 public class NumberVector extends ForwardingList<Number> {
 
@@ -33,6 +35,11 @@ public class NumberVector extends ForwardingList<Number> {
         return dot;
     }
 
+    /**
+     * Clone to a new vector with 1 additional bias dimension
+     * @param bias
+     * @return
+     */
     NumberVector withBias(Number bias) {
         return new NumberVector(Lists.newArrayList(
                 Iterables.concat(
