@@ -22,13 +22,13 @@ public class OrFunction {
      */
     public static void main(String[] args) {
         List<Pair<FeatureVector, Boolean>> data = Arrays.asList(
-                new Pair(new FeatureVector(0, 0), false),
-                new Pair(new FeatureVector(0, 1), true),
-                new Pair(new FeatureVector(1, 0), true),
-                new Pair(new FeatureVector(1, 1), true)
+                new Pair<FeatureVector, Boolean>(new FeatureVector(0, 0), false),
+                new Pair<FeatureVector, Boolean>(new FeatureVector(0, 1), true),
+                new Pair<FeatureVector, Boolean>(new FeatureVector(1, 0), true),
+                new Pair<FeatureVector, Boolean>(new FeatureVector(1, 1), true)
         );
-        ILinearDiscriminantLearner learner = new NeuronLinearDiscriminantLearner(25, 0.05d);
-        IEvaluator<FeatureVector> eval = new Evaluator();
+        ILinearDiscriminantLearner<FeatureVector> learner = new NeuronLinearDiscriminantLearner<FeatureVector>(25, 0.05d);
+        IEvaluator<FeatureVector> eval = new Evaluator<FeatureVector>();
 
         for (int t=0; t<8; t++) {
             learner.resetData();
@@ -41,7 +41,7 @@ public class OrFunction {
 
     public static class FeatureVector extends NumberVector {
 
-        public FeatureVector(int x1, int x2) {
+        FeatureVector(int x1, int x2) {
             super(Arrays.asList(x1, x2));
         }
     }

@@ -24,7 +24,7 @@ public class NeuronLinearDiscriminantLearner<TVector extends NumberVector> imple
 
     @Override
     public void addDataPoint(TVector tVector, boolean target) {
-        data.add(new Pair(tVector.withBias(BIAS_INPUT), target));
+        data.add(new Pair<NumberVector, Boolean>(tVector.withBias(BIAS_INPUT), target));
     }
 
     @Override
@@ -67,7 +67,7 @@ public class NeuronLinearDiscriminantLearner<TVector extends NumberVector> imple
         return currentWeights;
     }
 
-    protected NumberVector updateWeights(NumberVector weights, int target, int y, NumberVector xVector) {
+    NumberVector updateWeights(NumberVector weights, int target, int y, NumberVector xVector) {
         List<Number> newWeights = new ArrayList<>();
         for (int j=0; j<weights.size(); j++) {
             Number wj = weights.get(j).doubleValue() + this.learningRate*(target - y)*xVector.get(j).doubleValue();

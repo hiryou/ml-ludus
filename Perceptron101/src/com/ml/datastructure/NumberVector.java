@@ -20,10 +20,11 @@ public class NumberVector extends ForwardingList<Number> {
 
     @Override
     protected List<Number> delegate() {
+
         return numberVector;
     }
 
-    public Number dotProductWith(NumberVector vector) {
+    Number dotProductWith(NumberVector vector) {
         Validate.isTrue(this.size() == vector.size());
         double dot = 0;
         for (int i=0; i<this.size(); i++) {
@@ -32,7 +33,7 @@ public class NumberVector extends ForwardingList<Number> {
         return dot;
     }
 
-    public NumberVector withBias(Number bias) {
+    NumberVector withBias(Number bias) {
         return new NumberVector(Lists.newArrayList(
                 Iterables.concat(
                         Arrays.asList(bias), new ArrayList(this.numberVector)
