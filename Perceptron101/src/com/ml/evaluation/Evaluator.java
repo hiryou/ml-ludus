@@ -1,8 +1,6 @@
 package com.ml.evaluation;
 
 import com.ml.datastructure.ILinearDiscriminantNeuron;
-import com.ml.datastructure.ILinearModel;
-import com.ml.datastructure.NumberVector;
 import javafx.util.Pair;
 
 import java.util.List;

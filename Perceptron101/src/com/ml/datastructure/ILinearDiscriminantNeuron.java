@@ -1,6 +1,5 @@
 package com.ml.datastructure;
 
-import com.ml.learning.OrFunction;
 import javafx.util.Pair;
 
 import java.util.List;
@@ -16,7 +15,6 @@ public interface ILinearDiscriminantNeuron<TVector> {
 
     ILinearDiscriminantNeuron<TVector> addKnowledgeDatum(TVector tVector, boolean target);
 
-    
     ITrainingSession newTrainingSession();
 
     boolean classify(TVector tVector);

@@ -29,12 +29,11 @@ public class OrFunction {
         ILinearDiscriminantNeuron<FeatureVector> simpleNeuron = new LinearDiscriminantNeuron<>();
 
         for (int t=0; t<8; t++) {
-            ILinearDiscriminantNeuron.ITrainingSession trainingSession =
-                    simpleNeuron.resetIntelligence().addKnowledgeData(data)
-                            .newTrainingSession()
-                            .iterationCount(25)
-                            .learningRate(0.05);
-            trainingSession.train();
+            simpleNeuron.resetIntelligence().addKnowledgeData(data)
+                    .newTrainingSession()
+                    .iterationCount(25)
+                    .learningRate(0.05)
+                    .train();
 
             System.out.println(String.format("Accuracy = %f", Evaluator.getAccuracyRatio(data, simpleNeuron)));
         }
