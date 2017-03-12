@@ -1,6 +1,6 @@
-package com.ml.datastructure;
+package ml.perceptron.perceptron;
 
-import com.ml.learning.OrFunction;
+import ml.perceptron.OrFunction;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,9 +13,9 @@ public class NeuronLinearDiscriminantLearnerTest {
 
     @Test
     public void updateWeightsTest() {
-        ILinearDiscriminantNeuron<OrFunction.FeatureVector> neuron = new LinearDiscriminantNeuron<>();
-        LinearDiscriminantNeuron.TrainingSession training =
-                (LinearDiscriminantNeuron.TrainingSession) neuron.resetIntelligence()
+        GenericNeuron<OrFunction.FeatureVector> neuron = new Neuron<>();
+        Neuron.TrainingSession training =
+                (Neuron.TrainingSession) neuron.resetIntelligence()
                         .newTrainingSession()
                         .iterationCount(10)
                         .learningRate(0.25);

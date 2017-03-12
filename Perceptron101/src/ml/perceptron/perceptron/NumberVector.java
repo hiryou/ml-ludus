@@ -1,4 +1,4 @@
-package com.ml.datastructure;
+package ml.perceptron.perceptron;
 
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.Iterables;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Immutable
 @RequiredArgsConstructor
-public class NumberVector extends ForwardingList<Number> {
+public class NumberVector extends ForwardingList<Number> implements IFeatureVector {
 
     private final List<Number> numberVector;
 
@@ -24,6 +24,11 @@ public class NumberVector extends ForwardingList<Number> {
     protected List<Number> delegate() {
 
         return numberVector;
+    }
+
+    @Override
+    public int getDimension() {
+        return numberVector.size();
     }
 
     Number dotProductWith(NumberVector vector) {
