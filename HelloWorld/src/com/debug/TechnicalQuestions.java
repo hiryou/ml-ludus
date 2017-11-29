@@ -1,9 +1,6 @@
 package com.debug;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -16,7 +13,41 @@ public class TechnicalQuestions {
 
         //isRansomNoteCutFromMagazine("what is moon", new String[] {"what", "moon", "is", "moon", "what"});
 
-        stringTokenizePrintAllCombinations("thisisname", new String[] {"is", "name", "this", "isn", "ame"});
+        //stringTokenizePrintAllCombinations("thisisname", new String[] {"is", "name", "this", "isn", "ame"});
+
+        printAllPermutationsUniqueCharString("abc");
+
+        Character c = 'c';
+        Character d = 'c';
+        System.out.println(c == d);
+    }
+
+    private static void printAllPermutationsUniqueCharString(String s) {
+        if (s.isEmpty() || s == null) {
+            System.out.println("s is null/empty!");
+            return;
+        }
+
+        Set<Character> chars = new HashSet<>();
+        for (char c: s.toCharArray()) {
+            chars.add(c);
+        }
+        char[] result = new char[chars.size()];
+        printAllPermutationsUniqueCharStringRecursive(0, chars, new HashSet<>(), result);
+    }
+    private static void printAllPermutationsUniqueCharStringRecursive(
+            int idx, Set<Character> chars, Set<Character> usedChars, char[] result) {
+        if (idx == result.length) {
+            System.out.println(new String(result));
+            return;
+        }
+
+        for (char c: chars) if (!usedChars.contains(c)) {
+            result[idx] = c;
+            usedChars.add(c);
+            printAllPermutationsUniqueCharStringRecursive(idx+1, chars, usedChars, result);
+            usedChars.remove(c);
+        }
     }
 
     /**

@@ -1,7 +1,7 @@
 package ml.perceptron;
 
-import ml.perceptron.perceptron.INeuron;
 import javafx.util.Pair;
+import ml.perceptron.perceptron.INeuron;
 
 import java.util.List;
 
