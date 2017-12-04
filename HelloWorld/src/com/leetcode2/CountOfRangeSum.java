@@ -12,6 +12,9 @@ import java.util.Set;
  *
  * My solution: Convert range to binary tree
  * @Diary turned out that converting in such manner to a BIN tree is also n^2. I had to reference solution
+ *
+ * Please note this solution still runs in O(n^2). Please
+ * @see com.leetcode2.CountRangeSum same class in this package for O(nlog(n)) solution
  */
 public class CountOfRangeSum {
 
