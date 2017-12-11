@@ -1,71 +1,79 @@
 package com;
 
-import com.geeksforgeeks.BenchMark;
+import com.leetcode2.BenchMark;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class QuickEasy {
 
     public static void main(String[] args) {
         QuickEasy p = new QuickEasy();
 
-        int[] a = {1,1,2147483647};
-        //BenchMark.run(() -> p.minMoves(a));
+        int[] a = {1,3,100};
+        //BenchMark.run(() -> p.maximumGap(a));
     }
 
-    public class TreeNode {
-        int val;
-        TreeNode left;
-        TreeNode right;
-        TreeNode(int x) { val = x; }
+    public static class TreeNode {
+        public int val;
+        public TreeNode left;
+        public TreeNode right;
+        public TreeNode(int x) { val = x; }
+
+        static int maxGap = Integer.MIN_VALUE;
+        static Integer lastNum = null;
+
+        void addNew(int x) {
+            if (x==val) return;
+
+            if (x < val) {
+                if (left==null) {
+                    left = new TreeNode(x);
+                    return;
+                }
+                left.addNew(x);
+                return;
+            }
+
+            // when right
+            if (right==null) {
+                right = new TreeNode(x);
+                return;
+            }
+            right.addNew(x);
+        }
+
+        void inOrder() {
+            if (left != null) left.inOrder();
+
+            if (lastNum != null) {
+                maxGap = val - lastNum > maxGap ?val - lastNum :maxGap ;
+            }
+            lastNum = val;
+
+            if (right != null) right.inOrder();
+        }
     }
 
     public class ListNode {
-        int val;
-        ListNode right;
-        ListNode next;
-        ListNode(int x) { val = x; }
+        public int val;
+        public ListNode right;
+        public ListNode next;
+        public ListNode(int x) { val = x; }
     }
 
-    public int maxProfit(int[] a) {
-        if (a.length <= 1) return 0;
-        int n = a.length;
 
-        // loop left to right
-        // also track for the global max in case 1 transaction is better
-        int[] l = new int[n];
-        int minp = a[0];
-        int max1 = Integer.MIN_VALUE;
-        for (int i=0; i<a.length; i++) {
-            int val = a[i] - minp;
-            max1 = val > max1 ?val :max1 ;
-            l[i] = max1;
-            minp = a[i] < minp ?a[i] :minp ;
+    public int minTotalDistance(int[][] grid) {
+        if (grid.length==0 || grid[0].length==0) return 0;
+
+        long sumx = 0, sumy = 0;
+        long count = 0;
+        for (int i=0; i<grid.length; i++) for (int j=0; j<grid[0].length; j++) if (grid[i][j]==1) {
+            sumx += i;
+            sumy += j;
+            ++count;
         }
-
-        // loop right to left
-        int[] r = new int[n];
-        int maxp = a[n-1];
-        int max2 = Integer.MIN_VALUE;
-        for (int i=n-1; i>=0; i--) {
-            int val = maxp - a[i];
-            max2 = val > max2 ?val :max2 ;
-            r[i] = max2;
-            maxp = a[i] > maxp ?a[i] :maxp ;
-        }
-
-        // if 2 transactions
-        int _2trans = Integer.MIN_VALUE;
-        for (int i=1; i<=n-3; i++) {
-            int val = l[i] + r[i+1];
-            _2trans = val > _2trans ?val :_2trans ;
-        }
-
-        // if 1 transaction
-        int _1trans = l[n-1];
-
-        return _2trans > _1trans ?_2trans :_1trans ;
+        int x = (int)(sumx/count);
+        int y = (int)(sumy/count);
     }
 }
