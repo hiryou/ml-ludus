@@ -2,16 +2,47 @@ package com;
 
 import com.leetcode2.BenchMark;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class QuickEasy {
 
     public static void main(String[] args) {
         QuickEasy p = new QuickEasy();
 
-        int[] a = {1,3,100};
-        //BenchMark.run(() -> p.maximumGap(a));
+        String s = "hit";
+        String e = "cog";
+        List<String> ws = Arrays.asList("hot","dot","dog","lot","log","cog");
+        String ss = "abcabcabcabc";
+        //BenchMark.run(() -> p.myAtoi("  -0012a42"));
+
+        /*
+        int x = -8;
+        System.out.println(x >> 0);
+        System.out.println(x >> 1);
+        System.out.println(x >> 2);
+        System.out.println(x >> 3);
+
+        System.out.println((x >> 10) & 1);
+        System.out.println(x & (1 << 31));
+        */
+
+
+    }
+
+    private static RandomListNode[] createLinkedList(int[] a) {
+        RandomListNode[] result = new RandomListNode[a.length];
+        int idx = 0;
+
+        RandomListNode res = new RandomListNode(-1);
+        RandomListNode cur = res;
+        for (int x: a) {
+            cur.next = new RandomListNode(x);
+            result[idx++] = cur.next;
+            cur = cur.next;
+        }
+
+        return result;
     }
 
     public static class TreeNode {
@@ -55,25 +86,64 @@ public class QuickEasy {
         }
     }
 
-    public class ListNode {
+    public static class ListNode {
         public int val;
         public ListNode right;
         public ListNode next;
         public ListNode(int x) { val = x; }
     }
 
+    static class RandomListNode {
+        int label;
+        RandomListNode next, random;
+        RandomListNode(int x) { this.label = x; }
+    }
 
-    public int minTotalDistance(int[][] grid) {
-        if (grid.length==0 || grid[0].length==0) return 0;
+    static public class Interval {
+        int start;
+        int end;
+        Interval() { start = 0; end = 0; }
+        Interval(int s, int e) { start = s; end = e; }
+    }
 
-        long sumx = 0, sumy = 0;
-        long count = 0;
-        for (int i=0; i<grid.length; i++) for (int j=0; j<grid[0].length; j++) if (grid[i][j]==1) {
-            sumx += i;
-            sumy += j;
-            ++count;
+
+    // solution of in-place: reflect a cell to the top edge and left edge
+    public void setZeroes(int[][] s) {
+        if (s==null || s.length==0 || s[0].length==0) return;
+
+        // first check if top row and left col contains any zero or not
+        boolean top = false;
+        for (int j=0; j<s[0].length; j++) if (s[0][j]==0) {
+            top = true;
+            break;
         }
-        int x = (int)(sumx/count);
-        int y = (int)(sumy/count);
+        boolean left = false;
+        for (int i=0; i<s.length; i++) if (s[i][0]==0) {
+            left = true;
+            break;
+        }
+
+        // now do reflect
+        for (int i=1; i<s.length; i++) for (int j=1; j<s[0].length; j++) if (s[i][j]==0) {
+            s[i][0] = 0;
+            s[0][j] = 0;
+        }
+        // now set
+        for (int i=1; i<s.length; i++) if (s[i][0]==0) setRow(s, i);
+        for (int j=1; j<s[0].length; j++) if (s[0][j]==0) setCol(s, j);
+        // special cases: row 0 and col 0
+        if (s[0][0]==0) {
+            setRow(s, 0);
+            setCol(s, 0);
+        } else {
+            if (top) setRow(s, 0);
+            if (left) setCol(s, 0);
+        }
+    }
+    void setRow(int[][] s, int row) {
+        for (int j=0; j<s[0].length; j++) s[row][j] = 0;
+    }
+    void setCol(int[][] s, int col) {
+        for (int i=0; i<s.length; i++) s[i][col] = 0;
     }
 }
