@@ -8,7 +8,6 @@ import java.util.TreeMap;
 
 /**
  * https://leetcode.com/problems/bomb-enemy/discuss/
- * TODO Convert to DP solution. My solution runs slow!
  */
 public class BombEnemy {
 

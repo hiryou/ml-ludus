@@ -107,43 +107,21 @@ public class QuickEasy {
     }
 
 
-    // solution of in-place: reflect a cell to the top edge and left edge
-    public void setZeroes(int[][] s) {
-        if (s==null || s.length==0 || s[0].length==0) return;
+    public int findPairs(int[] a, int k) {
+        Map<Integer, Integer> map = new HashMap<>();
+        int count = 0;
+        for (int x: a) if (!map.containsKey(x) || k==0) {
+            if (k==0 && (!map.containsKey(x) || map.get(x) <= 1 )) {
+                map.put(x, map.getOrDefault(x, 0) + 1);
+                if (map.get(x) >= 2) ++count;
+            } else if (k > 0) {
+                if (map.containsKey(x-k)) ++count;
+                if (map.containsKey(x+k)) ++count;
+                map.put(x, 1);
+            }
 
-        // first check if top row and left col contains any zero or not
-        boolean top = false;
-        for (int j=0; j<s[0].length; j++) if (s[0][j]==0) {
-            top = true;
-            break;
         }
-        boolean left = false;
-        for (int i=0; i<s.length; i++) if (s[i][0]==0) {
-            left = true;
-            break;
-        }
+        return count;
+    }
 
-        // now do reflect
-        for (int i=1; i<s.length; i++) for (int j=1; j<s[0].length; j++) if (s[i][j]==0) {
-            s[i][0] = 0;
-            s[0][j] = 0;
-        }
-        // now set
-        for (int i=1; i<s.length; i++) if (s[i][0]==0) setRow(s, i);
-        for (int j=1; j<s[0].length; j++) if (s[0][j]==0) setCol(s, j);
-        // special cases: row 0 and col 0
-        if (s[0][0]==0) {
-            setRow(s, 0);
-            setCol(s, 0);
-        } else {
-            if (top) setRow(s, 0);
-            if (left) setCol(s, 0);
-        }
-    }
-    void setRow(int[][] s, int row) {
-        for (int j=0; j<s[0].length; j++) s[row][j] = 0;
-    }
-    void setCol(int[][] s, int col) {
-        for (int i=0; i<s.length; i++) s[i][col] = 0;
-    }
 }
