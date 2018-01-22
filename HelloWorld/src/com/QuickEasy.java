@@ -1,6 +1,7 @@
 package com;
 
 import com.leetcode2.BenchMark;
+import lombok.RequiredArgsConstructor;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,8 +13,8 @@ public class QuickEasy {
 
         String s = "hit";
         String e = "cog";
-        List<String> ws = Arrays.asList("hot","dot","dog","lot","log","cog");
         String ss = "abcabcabcabc";
+        List<String> ws = Arrays.asList("hot", "dot", "dog", "lot", "log", "cog");
         //BenchMark.run(() -> p.myAtoi("  -0012a42"));
 
         /*
@@ -36,7 +37,7 @@ public class QuickEasy {
 
         RandomListNode res = new RandomListNode(-1);
         RandomListNode cur = res;
-        for (int x: a) {
+        for (int x : a) {
             cur.next = new RandomListNode(x);
             result[idx++] = cur.next;
             cur = cur.next;
@@ -49,16 +50,19 @@ public class QuickEasy {
         public int val;
         public TreeNode left;
         public TreeNode right;
-        public TreeNode(int x) { val = x; }
+
+        public TreeNode(int x) {
+            val = x;
+        }
 
         static int maxGap = Integer.MIN_VALUE;
         static Integer lastNum = null;
 
         void addNew(int x) {
-            if (x==val) return;
+            if (x == val) return;
 
             if (x < val) {
-                if (left==null) {
+                if (left == null) {
                     left = new TreeNode(x);
                     return;
                 }
@@ -67,7 +71,7 @@ public class QuickEasy {
             }
 
             // when right
-            if (right==null) {
+            if (right == null) {
                 right = new TreeNode(x);
                 return;
             }
@@ -78,7 +82,7 @@ public class QuickEasy {
             if (left != null) left.inOrder();
 
             if (lastNum != null) {
-                maxGap = val - lastNum > maxGap ?val - lastNum :maxGap ;
+                maxGap = val - lastNum > maxGap ? val - lastNum : maxGap;
             }
             lastNum = val;
 
@@ -90,38 +94,65 @@ public class QuickEasy {
         public int val;
         public ListNode right;
         public ListNode next;
-        public ListNode(int x) { val = x; }
+
+        public ListNode(int x) {
+            val = x;
+        }
     }
 
     static class RandomListNode {
         int label;
         RandomListNode next, random;
-        RandomListNode(int x) { this.label = x; }
+
+        RandomListNode(int x) {
+            this.label = x;
+        }
     }
 
     static public class Interval {
         int start;
         int end;
-        Interval() { start = 0; end = 0; }
-        Interval(int s, int e) { start = s; end = e; }
-    }
 
-
-    public int findPairs(int[] a, int k) {
-        Map<Integer, Integer> map = new HashMap<>();
-        int count = 0;
-        for (int x: a) if (!map.containsKey(x) || k==0) {
-            if (k==0 && (!map.containsKey(x) || map.get(x) <= 1 )) {
-                map.put(x, map.getOrDefault(x, 0) + 1);
-                if (map.get(x) >= 2) ++count;
-            } else if (k > 0) {
-                if (map.containsKey(x-k)) ++count;
-                if (map.containsKey(x+k)) ++count;
-                map.put(x, 1);
-            }
-
+        Interval() {
+            start = 0;
+            end = 0;
         }
-        return count;
+
+        Interval(int s, int e) {
+            start = s;
+            end = e;
+        }
     }
+
+
+
+
+    // solution: dynamic programming
+    public int scheduleCourse(int[][] cs) {
+        if (cs==null) return 0;
+        int n = cs.length;
+        if (n==0) return 0;
+
+        // first sort all course by deadline date - time-spent day count
+        Arrays.sort( cs, Comparator.comparing((int[] c) -> c[1]) );
+
+        // 2 auxiliary arrays
+        int[] st = new int[n];
+        int[] count = new int[n];
+        int max = 1;
+        for (int i=0; i<n; i++) {
+            st[i] += cs[i][0]; // if the course is just taken by itself alone
+            count[i] = 1;
+            for (int j=0; j<i; j++) if (st[j]+cs[i][0] <= cs[i][1]) { // if stack-able courses
+                st[j] += cs[i][0];
+                count[j] += 1;
+                max = count[j] > max ?count[j] :max ;
+            }
+        }
+
+        return max;
+    }
+
+
 
 }
