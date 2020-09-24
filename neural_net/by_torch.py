@@ -1,4 +1,4 @@
-import time
+from datetime import datetime as dt
 
 import torch
 import torch.nn as nn
@@ -9,12 +9,15 @@ Inspired by https://medium.com/dair-ai/a-simple-neural-network-from-scratch-with
 
 
 class NeuralNet(nn.Module):
+    GPU_AVAIL = torch.cuda.is_available()
+    DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
     train_cnt = 0
     epoch = 0
     eta = 0.5
 
     # TODO make constructor-only param
-    h_layers = [3]
+    h_layers = [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]
 
     X = None
     Y = None
@@ -24,6 +27,15 @@ class NeuralNet(nn.Module):
     # hidden layers & last output layers
     W = list()
     H = list()
+
+    def __all_to_cuda(self):
+        self.X = self.X.to(self.DEVICE)
+        self.Y = self.Y.to(self.DEVICE)
+        for i in range(len(self.W)):
+            self.W[i] = self.W[i].to(self.DEVICE)
+            pass
+        #self.to(self.DEVICE)
+        pass
 
     def __init__(self, X, Y, epoch):
         super(NeuralNet, self).__init__()
@@ -42,7 +54,14 @@ class NeuralNet(nn.Module):
             self.W.append(ww)
             self.H.append(hh)
             left_neuron_cnt = neuron_cnt
-            pass
+
+        #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        # Assuming that we are on a CUDA machine, this should print a CUDA device:
+        #print(device)
+        print("DEVICE = GPU" if self.GPU_AVAIL else "device = cpu")
+        if self.GPU_AVAIL:
+            self.__all_to_cuda()
+        pass
 
     @staticmethod
     def sigmoid(s):
@@ -119,10 +138,10 @@ nn = NeuralNet(INP, Y, epoch=1000)
 
 print("-------------------------")
 print("training ...")
-tic = time.perf_counter_ns()
+tic = dt.now().microsecond
 nn.do_train()
-toc = time.perf_counter_ns()
+toc = dt.now().microsecond
 print("-------------------------")
 print("train loss = {}".format( str(nn.get_train_loss()) ))
-print("Train taken {} nano-secs".format('{:,}'.format(toc - tic)))
+print("Train taken {} micro-secs".format('{:,}'.format(toc - tic)))
 

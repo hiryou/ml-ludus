@@ -13,6 +13,7 @@ TODO LIST
     b. using pytorch
     https://medium.com/dair-ai/a-simple-neural-network-from-scratch-with-pytorch-and-google-colab-c7f3830618e0
     DONE 09/23/2020
+    Tried on GPU 09/24/2020
     
 4. Pytorch tensor; Option to run on GPU
     https://pytorch.org/tutorials/beginner/examples_tensor/two_layer_net_tensor.html

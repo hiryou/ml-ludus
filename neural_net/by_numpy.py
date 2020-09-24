@@ -1,7 +1,7 @@
 from builtins import classmethod
 
 import numpy as np
-import time
+from datetime import datetime as dt
 
 """
 Inspired by https://repl.it/repls/OrganicVainDoom#main.py
@@ -120,10 +120,10 @@ nn = NeuralNet(INP, Y, epoch=1000)
 
 print("-------------------------")
 print("training ...")
-tic = time.perf_counter_ns()
+tic = dt.now().microsecond
 nn.do_train()
-toc = time.perf_counter_ns()
+toc = dt.now().microsecond
 print("-------------------------")
 print("train loss = {}".format( str(nn.get_train_loss()) ))
-print("Train taken {} nano-secs".format('{:,}'.format(toc - tic)))
+print("Train taken {} micro-secs".format('{:,}'.format(toc - tic)))
 
