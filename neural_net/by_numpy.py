@@ -13,37 +13,34 @@ class NeuralNet(object):
     epoch = 0
     eta = 0.5
 
+    # TODO make constructor-only param
+    h_layers = [3]
+
     X = None
     Y = None
     X_size = 0  # neural count
+    Y_size = 0  # neural count
 
-    # 1st hidden layer
-    W0 = None
-    Z0_size = 3  # neural count
-    H0 = None
-    # 2nd hidden layer
-    W1 = None
-    Z1_size = 2  # neural count
-    H1 = None
-    # output later
-    W2 = None
-    Z2_size = 0  # neural count
-    H2 = None
+    # hidden layers & last output layers
+    W = list()
+    H = list()
 
     def __init__(self, X, Y, epoch):
         self.X, self.Y = self.__scaled(X, Y)
         self.train_cnt = len(self.X)
         self.X_size = len(self.X[0])
+        self.Y_size = len(self.Y[0])
         self.epoch = epoch
-        self.Z2_size = len(self.Y[0])
-        # init weights
-        self.W0 = np.random.randn(self.X_size, self.Z0_size)
-        self.W1 = np.random.randn(self.Z0_size, self.Z1_size)
-        self.W2 = np.random.randn(self.Z1_size, self.Z2_size)
-        # init output at each later
-        self.H0 = np.full((self.train_cnt, self.Z0_size), -0.0001)
-        self.H1 = np.full((self.train_cnt, self.Z1_size), -0.0001)
-        self.H2 = np.full((self.train_cnt, self.Z2_size), -0.0001)
+
+        self.h_layers.append(self.Y_size)
+        left_neuron_cnt = self.X_size
+        for neuron_cnt in self.h_layers:
+            ww = np.random.randn(left_neuron_cnt, neuron_cnt)
+            hh = np.full((self.train_cnt, neuron_cnt), -0.0001)
+            self.W.append(ww)
+            self.H.append(hh)
+            left_neuron_cnt = neuron_cnt
+            pass
 
     @staticmethod
     def sigmoid(s):
@@ -55,9 +52,9 @@ class NeuralNet(object):
 
     def get_train_loss(self):
         Y = self.__scaled_back(self.Y)
-        H2 = self.__scaled_back(self.H2)
+        H_last = self.__scaled_back(self.H[-1])
         return np.mean(
-            np.square(Y - H2)
+            np.square(Y - H_last)
         )
         pass
 
@@ -78,34 +75,30 @@ class NeuralNet(object):
         return Y*100
 
     def __forward(self, X):
-        # to layer H0
-        net_H0 = np.dot(X, self.W0)
-        self.H0 = self.sigmoid(net_H0)
+        left_mt = X
+        for idx in range(len(self.h_layers)):
+            net_H_idx = np.dot(left_mt, self.W[idx])
+            self.H[idx] = self.sigmoid(net_H_idx)
+            left_mt = self.H[idx]
 
-        # to layer H1
-        net_H1 = np.dot(self.H0, self.W1)
-        self.H1 = self.sigmoid(net_H1)
-
-        # to layer H2 (output)
-        net_H2 = np.dot(self.H1, self.W2)
-        self.H2 = self.sigmoid(net_H2)
-
-        return self.H2
+        return self.H[-1]
 
     def __backward(self):
-        # delta: at layer H2 (output)
-        delta_H2 = (self.Y - self.H2) * self.sigmoid_prime(self.H2)
-        # delta: at layer H1
-        delta_H1 = delta_H2.dot(self.W2.T) * self.sigmoid_prime(self.H1)
-        # delta: at layer H0
-        delta_H0 = delta_H1.dot(self.W1.T) * self.sigmoid_prime(self.H0)
+        # delta: start initially from layer H2 (output)
+        delta_H = [None for idx in range(len(self.h_layers))]
+        delta_H[-1] = (self.Y - self.H[-1]) * self.sigmoid_prime(self.H[-1])
 
-        # update weights: at layer W2
-        self.W2 += (1 / self.train_cnt) * self.eta * self.H1.T.dot(delta_H2)
-        # update weights: at layer W1
-        self.W1 += (1 / self.train_cnt) * self.eta * self.H0.T.dot(delta_H1)
-        # update weights: at layer W0
-        self.W0 += (1 / self.train_cnt) * self.eta * self.X.T.dot(delta_H0)
+        # then delta: reversed loop from semi-last element -> beginning
+        for idx in range(len(self.h_layers)-2, -1, -1):
+            delta_H[idx] = delta_H[idx+1].dot(self.W[idx+1].T) * self.sigmoid_prime(self.H[idx])
+            pass
+
+        # update weights: start from right most layer
+        for idx in range(len(self.h_layers) - 1, 0, -1):
+            self.W[idx] += (1 / self.train_cnt) * self.eta * self.H[idx-1].T.dot(delta_H[idx])
+            pass
+        # update weights: at layer W0 back to input
+        self.W[0] += (1 / self.train_cnt) * self.eta * self.X.T.dot(delta_H[0])
 
 
 f = open('study-sleep-grade.txt')
