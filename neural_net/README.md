@@ -8,11 +8,12 @@ TODO LIST
     
     a. using numpy
     https://repl.it/talk/announcements/Build-a-Neural-Network-in-Python/5457
+    DONE 09/23/2020
     
     b. using pytorch
     https://medium.com/dair-ai/a-simple-neural-network-from-scratch-with-pytorch-and-google-colab-c7f3830618e0
     
-4. Pytorch tensor 
+4. Pytorch tensor; Option to run on GPU
     https://pytorch.org/tutorials/beginner/examples_tensor/two_layer_net_tensor.html
     
 5. Image classifier
@@ -22,6 +23,8 @@ TODO LIST
     
     b. Train on multiple GPUs
     https://pytorch.org/tutorials/beginner/blitz/data_parallel_tutorial.html
+    
+    
 
 More reading
    * https://machinelearningmastery.com/understand-the-dynamics-of-learning-rate-on-deep-learning-neural-networks/
