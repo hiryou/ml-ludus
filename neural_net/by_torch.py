@@ -1,14 +1,14 @@
-from builtins import classmethod
-
-import numpy as np
 import time
 
+import torch
+import torch.nn as nn
+
 """
-Inspired by https://repl.it/repls/OrganicVainDoom#main.py
+Inspired by https://medium.com/dair-ai/a-simple-neural-network-from-scratch-with-pytorch-and-google-colab-c7f3830618e0
 """
 
 
-class NeuralNet(object):
+class NeuralNet(nn.Module):
     train_cnt = 0
     epoch = 0
     eta = 0.5
@@ -26,6 +26,8 @@ class NeuralNet(object):
     H = list()
 
     def __init__(self, X, Y, epoch):
+        super(NeuralNet, self).__init__()
+
         self.X, self.Y = self.__scaled(X, Y)
         self.train_cnt = len(self.X)
         self.X_size = len(self.X[0])
@@ -35,8 +37,8 @@ class NeuralNet(object):
         self.h_layers.append(self.Y_size)
         left_neuron_cnt = self.X_size
         for neuron_cnt in self.h_layers:
-            ww = np.random.randn(left_neuron_cnt, neuron_cnt)
-            hh = np.full((self.train_cnt, neuron_cnt), -0.0001)
+            ww = torch.randn(left_neuron_cnt, neuron_cnt)
+            hh = torch.full((self.train_cnt, neuron_cnt), -0.0001)
             self.W.append(ww)
             self.H.append(hh)
             left_neuron_cnt = neuron_cnt
@@ -44,7 +46,7 @@ class NeuralNet(object):
 
     @staticmethod
     def sigmoid(s):
-        return 1 / (1 + np.exp(-s))
+        return 1 / (1 + torch.exp(-s))
 
     @staticmethod
     def sigmoid_prime(sig):
@@ -53,15 +55,12 @@ class NeuralNet(object):
     def get_train_loss(self):
         Y = self.__scaled_back(self.Y)
         H_last = self.__scaled_back(self.H[-1])
-        return np.mean(
-            np.square(Y - H_last)
-        )
-        pass
+        return torch.mean((Y - H_last)**2).detach().item()
 
     def do_train(self):
         for i in range(self.epoch):
-            self.__forward(self.X)
-            self.__backward()
+            self(self.X)
+            self.backward()
             #print("epoch = {}: loss = {}".format( i, str(self.get_train_loss()) ))
 
     def __scaled(self, X, Y):
@@ -74,30 +73,30 @@ class NeuralNet(object):
         # max score = 100
         return Y*100
 
-    def __forward(self, X):
+    def forward(self, X):
         left_mt = X
         for idx in range(len(self.h_layers)):
-            net_H_idx = np.dot(left_mt, self.W[idx])
+            net_H_idx = torch.matmul(left_mt, self.W[idx])
             self.H[idx] = self.sigmoid(net_H_idx)
             left_mt = self.H[idx]
 
         return self.H[-1]
 
-    def __backward(self):
+    def backward(self):
         # delta: start initially from layer H2 (output)
-        delta_H = [None for idx in range(len(self.h_layers))]
+        delta_H = [torch.empty(0, 0) for idx in range(len(self.h_layers))]
         delta_H[-1] = (self.Y - self.H[-1]) * self.sigmoid_prime(self.H[-1])
         # then delta: reversed loop from semi-last element -> beginning
         for idx in range(len(self.h_layers)-2, -1, -1):
-            delta_H[idx] = delta_H[idx+1].dot(self.W[idx+1].T) * self.sigmoid_prime(self.H[idx])
+            delta_H[idx] = torch.matmul(delta_H[idx + 1], torch.t(self.W[idx + 1])) * self.sigmoid_prime(self.H[idx])
             pass
 
         # update weights: start from right most layer
         for idx in range(len(self.h_layers) - 1, 0, -1):
-            self.W[idx] += (1 / self.train_cnt) * self.eta * self.H[idx-1].T.dot(delta_H[idx])
+            self.W[idx] += (1 / self.train_cnt) * self.eta * torch.matmul(torch.t(self.H[idx - 1]), delta_H[idx])
             pass
         # update weights: at layer W0 back to input
-        self.W[0] += (1 / self.train_cnt) * self.eta * self.X.T.dot(delta_H[0])
+        self.W[0] += (1 / self.train_cnt) * self.eta * torch.matmul(torch.t(self.X), delta_H[0])
 
 
 f = open('study-sleep-grade.txt')
@@ -109,13 +108,13 @@ x_all = []
 y_all = []
 for line in lines:
     p = line.strip().split(", ")
-    y = p[0].strip().split(' ')
-    x = p[1].strip().split(' ')
+    y = [float(yj) for yj in p[0].strip().split(' ')]
+    x = [float(xi) for xi in p[1].strip().split(' ')]
     x_all.append(x)
     y_all.append(y)
 
-INP = np.array((x_all[:-1]), dtype=float)
-Y = np.array((y_all[:-1]), dtype=float)
+INP = torch.tensor((x_all[:-1]), dtype=torch.float)
+Y = torch.tensor((y_all[:-1]), dtype=torch.float)
 nn = NeuralNet(INP, Y, epoch=1000)
 
 print("-------------------------")
