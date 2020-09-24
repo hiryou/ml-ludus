@@ -87,7 +87,6 @@ class NeuralNet(object):
         # delta: start initially from layer H2 (output)
         delta_H = [None for idx in range(len(self.h_layers))]
         delta_H[-1] = (self.Y - self.H[-1]) * self.sigmoid_prime(self.H[-1])
-
         # then delta: reversed loop from semi-last element -> beginning
         for idx in range(len(self.h_layers)-2, -1, -1):
             delta_H[idx] = delta_H[idx+1].dot(self.W[idx+1].T) * self.sigmoid_prime(self.H[idx])
