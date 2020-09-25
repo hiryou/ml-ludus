@@ -34,7 +34,7 @@ class NeuralNet(nn.Module):
         for i in range(len(self.W)):
             self.W[i] = self.W[i].to(self.DEVICE)
             pass
-        #self.to(self.DEVICE)
+        self.to(self.DEVICE)
         pass
 
     def __init__(self, X, Y, epoch):
@@ -134,12 +134,16 @@ for line in lines:
 
 INP = torch.tensor((x_all[:-1]), dtype=torch.float)
 Y = torch.tensor((y_all[:-1]), dtype=torch.float)
-nn = NeuralNet(INP, Y, epoch=1000)
+neu_net = NeuralNet(INP, Y, epoch=1000)
+
+if torch.cuda.device_count() > 1:
+  print("Let's use", torch.cuda.device_count(), "GPUs!")
+  neu_net = nn.DataParallel(neu_net)
 
 print("-------------------------")
 print("training ...")
 tic = dt.now().microsecond
-nn.do_train()
+neu_net.do_train()
 toc = dt.now().microsecond
 print("-------------------------")
 print("train loss = {}".format( str(nn.get_train_loss()) ))
