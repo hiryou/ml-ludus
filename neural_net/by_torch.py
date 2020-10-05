@@ -17,7 +17,8 @@ class NeuralNet(nn.Module):
     eta = 0.5
 
     # TODO make constructor-only param
-    h_layers = [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]
+    #h_layers = [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]
+    h_layers = [3]
 
     X = None
     Y = None
@@ -26,6 +27,8 @@ class NeuralNet(nn.Module):
 
     # hidden layers & last output layers
     W = list()
+    W_bias = list()
+    __vec_one = None
     H = list()
 
     def __all_to_cuda(self):
@@ -33,7 +36,9 @@ class NeuralNet(nn.Module):
         self.Y = self.Y.to(self.DEVICE)
         for i in range(len(self.W)):
             self.W[i] = self.W[i].to(self.DEVICE)
+            self.W_bias[i] = self.W_bias[i].to(self.DEVICE)
             pass
+        self.__vec_one = self.__vec_one.to(self.DEVICE)
         self.to(self.DEVICE)
         pass
 
@@ -52,8 +57,10 @@ class NeuralNet(nn.Module):
             ww = torch.randn(left_neuron_cnt, neuron_cnt)
             hh = torch.full((self.train_cnt, neuron_cnt), -0.0001)
             self.W.append(ww)
+            self.W_bias.append(torch.randn(neuron_cnt))
             self.H.append(hh)
             left_neuron_cnt = neuron_cnt
+        self.__vec_one = torch.ones(self.train_cnt)
 
         #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # Assuming that we are on a CUDA machine, this should print a CUDA device:
@@ -95,7 +102,7 @@ class NeuralNet(nn.Module):
     def forward(self, X):
         left_mt = X
         for idx in range(len(self.h_layers)):
-            net_H_idx = torch.matmul(left_mt, self.W[idx])
+            net_H_idx = torch.matmul(left_mt, self.W[idx]) + self.W_bias[idx]
             self.H[idx] = self.sigmoid(net_H_idx)
             left_mt = self.H[idx]
 
@@ -110,12 +117,16 @@ class NeuralNet(nn.Module):
             delta_H[idx] = torch.matmul(delta_H[idx + 1], torch.t(self.W[idx + 1])) * self.sigmoid_prime(self.H[idx])
             pass
 
+        # vector of 1 with size = training size
+        vec_one = self.__vec_one
         # update weights: start from right most layer
         for idx in range(len(self.h_layers) - 1, 0, -1):
-            self.W[idx] += (1 / self.train_cnt) * self.eta * torch.matmul(torch.t(self.H[idx - 1]), delta_H[idx])
+            self.W[idx]      += (1 / self.train_cnt) * self.eta * torch.matmul(torch.t(self.H[idx - 1]), delta_H[idx])
+            self.W_bias[idx] += (1 / self.train_cnt) * self.eta * torch.matmul(vec_one, delta_H[idx])
             pass
         # update weights: at layer W0 back to input
-        self.W[0] += (1 / self.train_cnt) * self.eta * torch.matmul(torch.t(self.X), delta_H[0])
+        self.W[0]      += (1 / self.train_cnt) * self.eta * torch.matmul(torch.t(self.X), delta_H[0])
+        self.W_bias[0] += (1 / self.train_cnt) * self.eta * torch.matmul(vec_one, delta_H[0])
 
 
 f = open('study-sleep-grade.txt')
