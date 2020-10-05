@@ -137,8 +137,9 @@ Y = torch.tensor((y_all[:-1]), dtype=torch.float)
 neu_net = NeuralNet(INP, Y, epoch=1000)
 
 if torch.cuda.device_count() > 1:
-  print("Let's use", torch.cuda.device_count(), "GPUs!")
-  neu_net = nn.DataParallel(neu_net)
+  #print("Let's use", torch.cuda.device_count(), "GPUs!")
+  #neu_net = nn.DataParallel(neu_net)
+  pass
 
 print("-------------------------")
 print("training ...")
@@ -146,6 +147,6 @@ tic = dt.now().microsecond
 neu_net.do_train()
 toc = dt.now().microsecond
 print("-------------------------")
-print("train loss = {}".format( str(nn.get_train_loss()) ))
+print("train loss = {}".format( str(neu_net.get_train_loss()) ))
 print("Train taken {} micro-secs".format('{:,}'.format(toc - tic)))
 
