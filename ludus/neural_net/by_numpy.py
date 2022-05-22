@@ -20,6 +20,7 @@ class NeuralNet(object):
         # TODO make constructor-only param
         # len of this array = number of hidden layers; each num is # of neurons in each layer
         self.h_layers = [3]
+        # to simplify algo, we consider output Y as last element of h_layers
         self.h_layers.append(self.Y_size)
 
         self.W = list()  # weight matrix for each layer: hidden layers & last output layer
@@ -83,7 +84,7 @@ class NeuralNet(object):
         for idx in range(len(self.h_layers)-2, -1, -1):
             delta_H[idx] = delta_H[idx+1].dot(self.W[idx+1].T) * self.sigmoid_prime(self.H[idx])
 
-        # update weights: start from right most layer
+        # update weights: from right most layer to one before 1st hidden layer
         for idx in range(len(self.h_layers)-1, 0, -1):
             #self.W[idx] += (1 / self.train_cnt) * self.eta * self.H[idx-1].T.dot(delta_H[idx])
             self.W[idx] += self.H[idx-1].T.dot(delta_H[idx])

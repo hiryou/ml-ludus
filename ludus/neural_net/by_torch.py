@@ -117,18 +117,21 @@ class NeuralNet(nn.Module):
         # then delta: reversed loop from semi-last element -> beginning
         for idx in range(len(self.h_layers)-2, -1, -1):
             delta_H[idx] = torch.matmul(delta_H[idx + 1], torch.t(self.W[idx + 1])) * self.sigmoid_prime(self.H[idx])
-            pass
 
         # vector of 1 with size = training size
         vec_one = self.__vec_one
         # update weights: start from right most layer
         for idx in range(len(self.h_layers) - 1, 0, -1):
-            self.W[idx]      += (1 / self.train_cnt) * self.eta * torch.matmul(torch.t(self.H[idx - 1]), delta_H[idx])
-            self.W_bias[idx] += (1 / self.train_cnt) * self.eta * torch.matmul(vec_one, delta_H[idx])
-            pass
+            #self.W[idx]      += (1 / self.train_cnt) * self.eta * torch.matmul(torch.t(self.H[idx - 1]), delta_H[idx])
+            #self.W_bias[idx] += (1 / self.train_cnt) * self.eta * torch.matmul(vec_one, delta_H[idx])
+            self.W[idx]      += torch.matmul(torch.t(self.H[idx - 1]), delta_H[idx])
+            self.W_bias[idx] += torch.matmul(vec_one, delta_H[idx])
+
         # update weights: at layer W0 back to input
-        self.W[0]      += (1 / self.train_cnt) * self.eta * torch.matmul(torch.t(self.X), delta_H[0])
-        self.W_bias[0] += (1 / self.train_cnt) * self.eta * torch.matmul(vec_one, delta_H[0])
+        #self.W[0]      += (1 / self.train_cnt) * self.eta * torch.matmul(torch.t(self.X), delta_H[0])
+        #self.W_bias[0] += (1 / self.train_cnt) * self.eta * torch.matmul(vec_one, delta_H[0])
+        self.W[0]      += torch.matmul(torch.t(self.X), delta_H[0])
+        self.W_bias[0] += torch.matmul(vec_one, delta_H[0])
 
 
 f = open('study-sleep-grade.txt')
@@ -151,7 +154,7 @@ print(x_all)
 
 INP = torch.tensor((x_all[:-1]), dtype=torch.float)
 Y = torch.tensor((y_all[:-1]), dtype=torch.float)
-neu_net = NeuralNet(INP, Y, epoch=1000)
+neu_net = NeuralNet(INP, Y, epoch=100)
 
 if torch.cuda.device_count() > 1:
   #print("Let's use", torch.cuda.device_count(), "GPUs!")
@@ -164,6 +167,6 @@ tic = dt.now().microsecond
 neu_net.do_train()
 toc = dt.now().microsecond
 print("-------------------------")
-print("train loss = {}".format( str(neu_net.get_train_loss()) ))
+print("train loss = {:.2f}/100 (max score = 100)".format(neu_net.get_train_loss()))
 print("Train taken {} micro-secs".format('{:,}'.format(toc - tic)))
 
