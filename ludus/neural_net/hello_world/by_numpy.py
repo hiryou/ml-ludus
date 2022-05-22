@@ -1,3 +1,4 @@
+import os
 from datetime import datetime as dt
 
 import numpy as np
@@ -93,7 +94,7 @@ class NeuralNet(object):
         self.W[0] += self.X.T.dot(delta_H[0])
 
 
-f = open('study-sleep-grade.txt')
+f = open(os.getcwd()+'/hello_world/study-sleep-grade.txt')
 lines = f.readlines()
 f.close()
 # print(lines)
