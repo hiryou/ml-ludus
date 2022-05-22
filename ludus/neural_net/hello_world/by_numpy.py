@@ -9,6 +9,55 @@ Inspired by https://repl.it/repls/OrganicVainDoom#main.py
 
 
 class NeuralNet(object):
+    r"""
+    This is the bare NN impl to help remind you of how forward/back propagation work in terms of code data structure
+
+    Example: we want to map 2 neuron input -> 1 neuron output (input is a 2-d vector, output is a scalar). Let say we
+    have 2 hidden neural layers, having 3 & 4 neurons in that order. Also, assume the number of training datapoint = 99.
+    This gives us the following NN:
+
+    [2 neurons] -> [3 neurons] -> [4 neurons] -> [1 neuron], or
+
+    X      W0    H0   W1   H1   W2  Y
+    (2)    ->   (3)   ->  (4)   -> (1)
+    where:
+        X is a [99x2] matrix: 99 datapoints, each is a 2-d vector
+        W0 is a  [2x3] matrix, W1 is a  [3x4] matrix, etc
+        H0 is a [99x3] matrix, H1 is a [99x4] matrix, etc
+        Y is a [99x1] matrix: 99 datapoints, each is a 1-d vector
+
+    To simplify the later for-loop computation, think of Y as H2 (to be added to the list of hidden layers). The idea is
+    that weight matrix Wi goes with hidden layer Hi:
+
+    X[99x2]  | W0[2x3]  H0[99x3]  | W1[3x4]   H1[99x4]  | W2[4x1]  H2[99x1]  |
+        (2)  |   ->          (3)  |   ->           (4)  |   ->          (1)  |
+
+    Following is the data structure we would have:
+
+    * h_layers = [3, 4, 1]  # count of neurons in each Hi layer
+    * W = [  W0[2x3],  W1[3x4],  W2[4x1] ]    # list of weight matrix toward each Hi layer
+    * H = [ H0[99x3], H1[99x4], H2[99x1] ]    # 99 datapoints, each produces an activation vector Hi at each Hi layer
+
+    Algo: for each training epoch (training iteration):
+    * Forward:
+        X[99x2]  . W0[2x3] ~sigmoid -> H0[99x3]
+        H0[99x3] . W1[3x4] ~sigmoid -> H1[99x4]
+        H1[99x4] . W2[4x1] ~sigmoid -> H2[99x1]
+    * Back propagation:
+        delta_H = [ delta_H0[99x3], delta_H1[99x4], delta_H2[99x1] ]    # track the big Delta at each H layer
+        ---------
+        (Y[99x1] - H2[99x1])               * sigmoid_prime(H2[99x1]) -> delta_H2[99x1]
+        ---------
+        delta_H2[99x1] . W2_transpose[1x4] * sigmoid_prime(H1[99x4]) -> delta_H1[99x4]
+        delta_H1[99x4] . W1_transpose[4x3] * sigmoid_prime(H0[99x3]) -> delta_H0[99x3]
+        ---------
+        * Update/smooth weights:
+            H1_transpose[4x99] . delta_H2[99x1] ~> W2[4x1]
+            H0_transpose[3x99] . delta_H1[99x4] ~> W1[3x4]
+            ---------
+            X_transpose[2x99]  . delta_H0[99x3] ~> W0[2x3]
+    """
+
     eta = 0.5
 
     def __init__(self, X, Y, epoch):
