@@ -1,7 +1,6 @@
-from builtins import classmethod
+from datetime import datetime as dt
 
 import numpy as np
-from datetime import datetime as dt
 
 """
 Inspired by https://repl.it/repls/OrganicVainDoom#main.py
@@ -9,30 +8,23 @@ Inspired by https://repl.it/repls/OrganicVainDoom#main.py
 
 
 class NeuralNet(object):
-    train_cnt = 0
-    epoch = 0
     eta = 0.5
-
-    # TODO make constructor-only param
-    h_layers = [3]
-
-    X = None
-    Y = None
-    X_size = 0  # neural count
-    Y_size = 0  # neural count
-
-    # hidden layers & last output layers
-    W = list()
-    H = list()
 
     def __init__(self, X, Y, epoch):
         self.X, self.Y = self.__scaled(X, Y)
         self.train_cnt = len(self.X)
-        self.X_size = len(self.X[0])
-        self.Y_size = len(self.Y[0])
+        self.X_size = len(self.X[0])  # neuron count
+        self.Y_size = len(self.Y[0])  # neuron count
         self.epoch = epoch
 
+        # TODO make constructor-only param
+        # len of this array = number of hidden layers; each num is # of neurons in each layer
+        self.h_layers = [3]
         self.h_layers.append(self.Y_size)
+
+        self.W = list()  # weight matrix for each layer: hidden layers & last output layer
+        self.H = list()  # matrix [#datapoint x neuron count] for each layer: hidden layers & last output layer
+
         left_neuron_cnt = self.X_size
         for neuron_cnt in self.h_layers:
             ww = np.random.randn(left_neuron_cnt, neuron_cnt)
@@ -40,7 +32,6 @@ class NeuralNet(object):
             self.W.append(ww)
             self.H.append(hh)
             left_neuron_cnt = neuron_cnt
-            pass
 
     @staticmethod
     def sigmoid(s):
@@ -84,20 +75,21 @@ class NeuralNet(object):
         return self.H[-1]
 
     def __backward(self):
-        # delta: start initially from layer H2 (output)
-        delta_H = [None for idx in range(len(self.h_layers))]
+        delta_H = [None for _ in range(len(self.h_layers))]
+        # delta: start initially from last layer H[-1] (output)
         delta_H[-1] = (self.Y - self.H[-1]) * self.sigmoid_prime(self.H[-1])
-        # then delta: reversed loop from semi-last element -> beginning
+
+        # then delta: reversed loop from semi-last element (last hidden layer) -> 1st hidden layer
         for idx in range(len(self.h_layers)-2, -1, -1):
             delta_H[idx] = delta_H[idx+1].dot(self.W[idx+1].T) * self.sigmoid_prime(self.H[idx])
-            pass
 
         # update weights: start from right most layer
-        for idx in range(len(self.h_layers) - 1, 0, -1):
-            self.W[idx] += (1 / self.train_cnt) * self.eta * self.H[idx-1].T.dot(delta_H[idx])
-            pass
+        for idx in range(len(self.h_layers)-1, 0, -1):
+            #self.W[idx] += (1 / self.train_cnt) * self.eta * self.H[idx-1].T.dot(delta_H[idx])
+            self.W[idx] += self.H[idx-1].T.dot(delta_H[idx])
         # update weights: at layer W0 back to input
-        self.W[0] += (1 / self.train_cnt) * self.eta * self.X.T.dot(delta_H[0])
+        #self.W[0] += (1 / self.train_cnt) * self.eta * self.X.T.dot(delta_H[0])
+        self.W[0] += self.X.T.dot(delta_H[0])
 
 
 f = open('study-sleep-grade.txt')
@@ -114,9 +106,9 @@ for line in lines:
     x_all.append(x)
     y_all.append(y)
 
-INP = np.array((x_all[:-1]), dtype=float)
-Y = np.array((y_all[:-1]), dtype=float)
-nn = NeuralNet(INP, Y, epoch=1000)
+INP = np.array((x_all), dtype=float)
+Y = np.array((y_all), dtype=float)
+nn = NeuralNet(INP, Y, epoch=100)
 
 print("-------------------------")
 print("training ...")
@@ -124,6 +116,6 @@ tic = dt.now().microsecond
 nn.do_train()
 toc = dt.now().microsecond
 print("-------------------------")
-print("train loss = {}".format( str(nn.get_train_loss()) ))
+print("train loss = {:.2f}/100 (max score = 100)".format(nn.get_train_loss()))
 print("Train taken {} micro-secs".format('{:,}'.format(toc - tic)))
 

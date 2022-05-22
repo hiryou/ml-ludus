@@ -50,8 +50,8 @@ class NeuralNetwork(object):
         h_delta = h_error * self.sigmoid_prime(self.h_layer)  # applying derivative of sigmoid to h's error
 
         # now adjust w's at each layer
-        self.W_ih += X.T.dot(h_delta)  # adjusting (input --> hidden) weights
         self.W_ho += self.h_layer.T.dot(o_delta)  # adjusting (hidden --> output) weights
+        self.W_ih += X.T.dot(h_delta)  # adjusting (input --> hidden) weights
 
     def train(self, X, y):
         o = self.forward(X)
@@ -68,7 +68,8 @@ for i in range(100):  # trains the NN 1,00 times
     print("Input (scaled): \n" + str(X))
     print("Actual Output: \n" + str(Y))
     print("Predicted Output: \n" + str(NN.forward(X)))
-    print("Train loss: \n" + str(np.mean(np.square(Y - NN.forward(X)))))  # mean sum squared loss
+    train_loss = np.mean(np.square(Y*100 - NN.forward(X)*100))
+    print('Train loss: {:.2f}/100 (max score = 100)'.format(train_loss))  # mean sum squared loss of scaled back output
     print("\n")
     NN.train(X, Y)
 
