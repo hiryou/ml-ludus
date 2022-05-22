@@ -44,14 +44,14 @@ class NeuralNet(object):
         H0[99x3] . W1[3x4] ~sigmoid -> H1[99x4]
         H1[99x4] . W2[4x1] ~sigmoid -> H2[99x1]
     * Back propagation:
-        delta_H = [ delta_H0[99x3], delta_H1[99x4], delta_H2[99x1] ]    # track the big Delta at each H layer
-        ---------
-        (Y[99x1] - H2[99x1])               * sigmoid_prime(H2[99x1]) -> delta_H2[99x1]
-        ---------
-        delta_H2[99x1] . W2_transpose[1x4] * sigmoid_prime(H1[99x4]) -> delta_H1[99x4]
-        delta_H1[99x4] . W1_transpose[4x3] * sigmoid_prime(H0[99x3]) -> delta_H0[99x3]
-        ---------
-        * Update/smooth weights:
+        * Hi -> delta_Hi
+            delta_H = [ delta_H0[99x3], delta_H1[99x4], delta_H2[99x1] ]    # track the big Delta at each H layer
+            ---------
+            (Y[99x1] - H2[99x1])               * sigmoid_prime(H2[99x1]) -> delta_H2[99x1]
+            ---------
+            delta_H2[99x1] . W2_transpose[1x4] * sigmoid_prime(H1[99x4]) -> delta_H1[99x4]
+            delta_H1[99x4] . W1_transpose[4x3] * sigmoid_prime(H0[99x3]) -> delta_H0[99x3]
+        * delta_Hi -> smoothing/updating Wi
             H1_transpose[4x99] . delta_H2[99x1] ~> W2[4x1]
             H0_transpose[3x99] . delta_H1[99x4] ~> W1[3x4]
             ---------
@@ -62,24 +62,22 @@ class NeuralNet(object):
 
     def __init__(self, X, Y, epoch):
         self.X, self.Y = self.__scaled(X, Y)
-        self.train_cnt = len(self.X)
-        self.X_size = len(self.X[0])  # neuron count
-        self.Y_size = len(self.Y[0])  # neuron count
         self.epoch = epoch
 
         # TODO make constructor-only param
         # len of this array = number of hidden layers; each num is # of neurons in each layer
-        self.h_layers = [3]
-        # to simplify algo, we consider output Y as last element of h_layers
-        self.h_layers.append(self.Y_size)
+        # to simplify algo, we consider output Y as last element of h_layers also
+        Y_size = len(self.Y[0])  # neuron count of Y
+        h_layers = [3, Y_size]
 
         self.W = list()  # weight matrix for each layer: hidden layers & last output layer
         self.H = list()  # matrix [#datapoint x neuron count] for each layer: hidden layers & last output layer
 
-        left_neuron_cnt = self.X_size
-        for neuron_cnt in self.h_layers:
+        X_size = len(self.X[0])  # neuron count of X
+        left_neuron_cnt = X_size
+        for neuron_cnt in h_layers:
             ww = np.random.randn(left_neuron_cnt, neuron_cnt)
-            hh = np.full((self.train_cnt, neuron_cnt), -0.0001)
+            hh = np.full((len(self.X), neuron_cnt), -0.0001)
             self.W.append(ww)
             self.H.append(hh)
             left_neuron_cnt = neuron_cnt
@@ -104,7 +102,7 @@ class NeuralNet(object):
         for i in range(self.epoch):
             self.__forward(self.X)
             self.__backward()
-            #print("epoch = {}: loss = {}".format( i, str(self.get_train_loss()) ))
+            print("--epoch={}, loss = {}".format(i, self.get_train_loss()))
 
     def __scaled(self, X, Y):
         # normalize
@@ -118,7 +116,7 @@ class NeuralNet(object):
 
     def __forward(self, X):
         left_mt = X
-        for idx in range(len(self.h_layers)):
+        for idx in range(len(self.H)):
             net_H_idx = np.dot(left_mt, self.W[idx])
             self.H[idx] = self.sigmoid(net_H_idx)
             left_mt = self.H[idx]
@@ -126,16 +124,15 @@ class NeuralNet(object):
         return self.H[-1]
 
     def __backward(self):
-        delta_H = [None for _ in range(len(self.h_layers))]
+        delta_H = [None for _ in range(len(self.H))]
         # delta: start initially from last layer H[-1] (output)
         delta_H[-1] = (self.Y - self.H[-1]) * self.sigmoid_prime(self.H[-1])
-
         # then delta: reversed loop from semi-last element (last hidden layer) -> 1st hidden layer
-        for idx in range(len(self.h_layers)-2, -1, -1):
+        for idx in range(len(self.H)-2, -1, -1):
             delta_H[idx] = delta_H[idx+1].dot(self.W[idx+1].T) * self.sigmoid_prime(self.H[idx])
 
         # update weights: from right most layer to one before 1st hidden layer
-        for idx in range(len(self.h_layers)-1, 0, -1):
+        for idx in range(len(self.W)-1, 0, -1):
             #self.W[idx] += (1 / self.train_cnt) * self.eta * self.H[idx-1].T.dot(delta_H[idx])
             self.W[idx] += self.H[idx-1].T.dot(delta_H[idx])
         # update weights: at layer W0 back to input
