@@ -17,7 +17,7 @@ class NeuralNet(nn.Module):
     eta = 0.5
 
     # TODO make constructor-only param
-    #h_layers = [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]
+    #h_layers = [1000, 1000, 1000]
     h_layers = [3]
 
     X = None
@@ -82,10 +82,12 @@ class NeuralNet(nn.Module):
         Y = self.__scaled_back(self.Y)
         H_last = self.__scaled_back(self.H[-1])
         return torch.mean((Y - H_last)**2).detach().item()
+        #H_last = self.H[-1]
+        #return torch.mean((Y - H_last)**2).detach().item()
 
     def do_train(self):
         for i in range(self.epoch):
-            self(self.X)
+            self.forward(self.X)
             self.backward()
             #print("epoch = {}: loss = {}".format( i, str(self.get_train_loss()) ))
 
@@ -142,6 +144,10 @@ for line in lines:
     x = [float(xi) for xi in p[1].strip().split(' ')]
     x_all.append(x)
     y_all.append(y)
+
+print(y_all)
+print(x_all)
+
 
 INP = torch.tensor((x_all[:-1]), dtype=torch.float)
 Y = torch.tensor((y_all[:-1]), dtype=torch.float)
