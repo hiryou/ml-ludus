@@ -29,3 +29,5 @@ out
 */*.aux
 */*.log
 */*.synctex.gz
+
+*__pycache__*
