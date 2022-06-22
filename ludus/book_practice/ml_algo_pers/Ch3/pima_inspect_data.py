@@ -29,6 +29,7 @@ def plot_histogram(plt, dataset, xlabel: str, is_density=False):
 included_header = np.genfromtxt(os.getcwd() + '/diabetes.csv', delimiter=',')
 pima = included_header[1:]
 
+"""
 # # plot an arbitrary pair of features against classes
 # filter of datapoints belong to 1st class
 indices0 = np.where(pima[:,8]==0)
@@ -36,8 +37,9 @@ indices0 = np.where(pima[:,8]==0)
 indices1 = np.where(pima[:,8]==1)
 # Plot the feature 1 and 2 for each class
 #pl.ion()
-#plt.plot(pima[indices0,0], pima[indices0,1], 'go')
-#plt.plot(pima[indices1,0], pima[indices1,1], 'rx')
+plt.plot(pima[indices0,0], pima[indices0,1], 'go')
+plt.plot(pima[indices1,0], pima[indices1,1], 'rx')
+"""
 
 # # histogram of Pregnancies
 plot_histogram(plt, pima[:,0], '# of pregnancy')
