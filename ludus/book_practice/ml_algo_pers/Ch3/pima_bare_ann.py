@@ -19,9 +19,8 @@ import os
 
 import numpy as np
 
-included_header = np.genfromtxt(os.getcwd() + '/diabetes.csv', delimiter=',')
-pima_orig = included_header[1:]
-
-print(pima_orig.shape)
-print(pima_orig.ndim)
+__included_header = np.genfromtxt(os.getcwd() + '/diabetes.csv', delimiter=',')
+pima_orig = __included_header[1:]
+#print(pima_orig.shape)
+#print(pima_orig.ndim)
 
