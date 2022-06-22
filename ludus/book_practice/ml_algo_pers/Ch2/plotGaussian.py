@@ -15,7 +15,7 @@ import numpy as np
 gaussian = lambda x: 1/(np.sqrt(2*np.pi)*1.5)*np.exp(-(x-0)**2/(2*(1.5**2)))
 x = np.arange(-5,5,0.01)
 y = gaussian(x)
-pl.ion()
+#pl.ion()
 pl.plot(x,y,'k',linewidth=3)
 pl.xlabel('x')
 pl.ylabel('y(x)')

@@ -60,7 +60,7 @@ class pcn:
 		return np.where(activations>0,1,0)
 
 
-	def confmat(self,inputs,targets):
+	def confmat(self, inputs, targets):
 		"""Confusion matrix"""
 
 		# Add the inputs that match the bias node
@@ -86,6 +86,7 @@ class pcn:
 		print(cm)
 		print(np.trace(cm)/np.sum(cm))
 		
+
 def logic():
 	import pcn
 	""" Run AND and XOR logic functions"""
