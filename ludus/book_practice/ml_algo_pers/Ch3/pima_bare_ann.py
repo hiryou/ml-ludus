@@ -62,9 +62,14 @@ print(f'-- X_train shape: {X_train.shape}')
 print(f'-- y_train shape: {y_train.shape}')
 
 # start training
-nnet = NeuralNet_By_Numpy(X_train, y_train, epoch=500, batch_size=16, hidden_layers=[16, 32])
-print('training..')
-nnet.do_train()
+print('Training..')
+EPOCH = 500
+nnet = NeuralNet_By_Numpy(X_train, y_train, batch_size=16, hidden_layers=[16, 32])
+for _ in range(EPOCH):
+    nnet.iteration_train()
+    y_pred = nnet.iteration_predict()
+    y_pred = np.where(y_pred > 0.5, 1, 0)
+    print('  -- Accuracy: {:.2f}%'.format(accuracy_score(y_train, y_pred) * 100))
 
 # check training perf
 #train_pred = nnet.predict(X_train)

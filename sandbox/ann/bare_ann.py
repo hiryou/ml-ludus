@@ -1,13 +1,13 @@
-import numpy as np
-from sklearn.metrics import confusion_matrix, accuracy_score
 import math
+
+import numpy as np
 
 
 class NeuralNet_By_Numpy(object):
 
     eta = 0.5   # learning rate
 
-    def __init__(self, X, Y, epoch: int, batch_size: int = None, hidden_layers: [int] = []):
+    def __init__(self, X, Y, batch_size: int = None, hidden_layers: [int] = []):
         """
         Setup neural network
 
@@ -38,8 +38,6 @@ class NeuralNet_By_Numpy(object):
         batch_Y: [] = np.array_split(yy, batch_cnt)
         self.batch_X_Y: [] = list(zip(batch_X, batch_Y))    # each element is a (X, Y) used as 1 batch gradient descent
 
-        self.epoch = epoch
-
         # len of this array = number of hidden layers; each num is # of neurons in each layer
         # to simplify algo, we consider output Y as last element of h_layers also
         Y_size = yy.shape[1]  # neuron count of Y
@@ -67,21 +65,16 @@ class NeuralNet_By_Numpy(object):
     def sigmoid_prime(sig):
         return sig * (1 - sig)
 
-    def do_train(self):
-        # for each training iteration
-        for i in range(self.epoch):
-            # for each batch
-            for X_Y in self.batch_X_Y:
-                X, Y = X_Y[0], X_Y[1]
-                self.__forward(X)
-                self.__backward(X, Y)
-            if self.DEBUG:
-                x_train = np.concatenate(([ite[0] for ite in self.batch_X_Y]), axis=0)
-                y_true = np.concatenate(([ite[1] for ite in self.batch_X_Y]), axis=0)
-                y_true = self.__squeeze_back_output(y_true)
-                y_pred = self.predict(x_train)
-                y_pred = np.where(y_pred > 0.5, 1, 0)
-                print('Accuracy: {:.2f}%'.format(accuracy_score(y_true, y_pred) * 100))
+    def iteration_train(self):
+        # for each batch
+        for X_Y in self.batch_X_Y:
+            X, Y = X_Y[0], X_Y[1]
+            self.__forward(X)
+            self.__backward(X, Y)
+
+    def iteration_predict(self):
+        x_train = np.concatenate(([ite[0] for ite in self.batch_X_Y]), axis=0)
+        return self.predict(x_train)
 
     def predict(self, X):
         """
