@@ -62,7 +62,7 @@ print(f'-- X_train shape: {X_train.shape}')
 print(f'-- y_train shape: {y_train.shape}')
 
 # start training
-nnet = NeuralNet_By_Numpy(X_train, y_train, epoch=200, hidden_layers=[32, 64, 32])
+nnet = NeuralNet_By_Numpy(X_train, y_train, epoch=500, batch_size=16, hidden_layers=[16, 32])
 print('training..')
 nnet.do_train()
 
