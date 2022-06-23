@@ -38,7 +38,7 @@ y = df_orig.Outcome
 #print(y.shape)
 
 # Assumed best chosen features from the ref solution
-selected_features = ['Pregnancies', 'Glucose', 'BMI', 'DiabetesPedigreeFunction', 'BloodPressure', 'Insulin']
+selected_features = ['Pregnancies', 'Glucose', 'BMI', 'DiabetesPedigreeFunction']
 print(f'-- selected features: {selected_features}')
 # StandardScaler() scales each dimension to 0-mean and unit variance e.g. var == 1
 X = StandardScaler().fit_transform(X[selected_features])
@@ -46,7 +46,7 @@ X = StandardScaler().fit_transform(X[selected_features])
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
-    test_size=0.20, # 20%
+    test_size=0.25, # 25%
     stratify=y, # maintain balance between classes https://stackoverflow.com/questions/54600907/does-the-train-test-split-function-keep-the-balance-between-classes
     random_state=1989
 )
@@ -70,6 +70,12 @@ for _ in range(EPOCH):
     y_pred = nnet.iteration_predict()
     y_pred = np.where(y_pred > 0.5, 1, 0)
     print('  -- Accuracy: {:.2f}%'.format(accuracy_score(y_train, y_pred) * 100))
+
+# test perf
+print('Testing..')
+y_pred = nnet.predict(X_test)
+y_pred = np.where(y_pred > 0.5, 1, 0)
+print('  -- Accuracy: {:.2f}%'.format(accuracy_score(y_test, y_pred) * 100))
 
 # check training perf
 #train_pred = nnet.predict(X_train)
