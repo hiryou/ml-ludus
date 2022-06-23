@@ -38,7 +38,7 @@ y = df_orig.Outcome
 #print(y.shape)
 
 # Assumed best chosen features from the ref solution
-selected_features = ['Pregnancies', 'Glucose', 'BMI', 'DiabetesPedigreeFunction']
+selected_features = ['Pregnancies', 'Glucose', 'BMI', 'DiabetesPedigreeFunction', 'BloodPressure', 'Insulin']
 print(f'-- selected features: {selected_features}')
 # StandardScaler() scales each dimension to 0-mean and unit variance e.g. var == 1
 X = StandardScaler().fit_transform(X[selected_features])
