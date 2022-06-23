@@ -16,6 +16,10 @@ class NeuralNet_By_Numpy(object):
         X : ndarray of shape (n_samples, n_features)
 
         Y : ndarray of shape (n_samples,) or (n_samples, n_features)
+
+        batch_size: number of training samples to work through before updating weights
+
+        hidden_layers: array of number of neurons in each hidden layers, default is [] as no hidden layer
         """
 
         assert X.ndim <= 2

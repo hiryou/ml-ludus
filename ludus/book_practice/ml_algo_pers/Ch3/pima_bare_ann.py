@@ -17,15 +17,30 @@
 
 import os
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.metrics import confusion_matrix, accuracy_score
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from sandbox.ann.bare_ann import NeuralNet_By_Numpy
 
-DATASET_CSV_FILE = os.getcwd() + '/diabetes.csv'
+
+def do_confusion_matrix(y_train, y_pred, plt):
+    plt.figure()
+    cm = confusion_matrix(y_train, y_pred)
+    sns.set(color_codes=True)
+    sns.set(font_scale=1)
+    sns.heatmap(cm, annot=True, fmt='g')
+
+
+SMALL_TRAIN_DS = '/diabetes.csv'
+BIG_TRAIN_DS = '/diabetes75pc_100_times.csv'
+DATASET_CSV_FILE = os.getcwd() + BIG_TRAIN_DS
+
+EPOCH = 100
 
 
 df_orig = pd.read_csv(DATASET_CSV_FILE)
@@ -48,7 +63,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     y,
     test_size=0.25, # 25%
     stratify=y, # maintain balance between classes https://stackoverflow.com/questions/54600907/does-the-train-test-split-function-keep-the-balance-between-classes
-    random_state=1989
+    #random_state=1989
 )
 print(f'-- Train size = {X_train.shape[0]}')
 print(f'-- Test size  = {X_test.shape[0]}')
@@ -63,19 +78,26 @@ print(f'-- y_train shape: {y_train.shape}')
 
 # start training
 print('Training..')
-EPOCH = 500
 nnet = NeuralNet_By_Numpy(X_train, y_train, batch_size=16, hidden_layers=[16, 32])
 for _ in range(EPOCH):
     nnet.iteration_train()
     y_pred = nnet.iteration_predict()
     y_pred = np.where(y_pred > 0.5, 1, 0)
     print('  -- Accuracy: {:.2f}%'.format(accuracy_score(y_train, y_pred) * 100))
+    print('  -- F1      : {:.2f}%'.format(f1_score(y_train, y_pred) * 100))
+# confusion matrix over training data
+y_pred = nnet.predict(X_train)
+y_pred = np.where(y_pred > 0.5, 1, 0)
+do_confusion_matrix(y_train, y_pred, plt)
 
 # test perf
 print('Testing..')
 y_pred = nnet.predict(X_test)
 y_pred = np.where(y_pred > 0.5, 1, 0)
 print('  -- Accuracy: {:.2f}%'.format(accuracy_score(y_test, y_pred) * 100))
+print('  -- F1      : {:.2f}%'.format(f1_score(y_test, y_pred) * 100))
+# confusion matrix over training data
+do_confusion_matrix(y_test, y_pred, plt)
 
 # check training perf
 #train_pred = nnet.predict(X_train)
@@ -83,3 +105,5 @@ print('  -- Accuracy: {:.2f}%'.format(accuracy_score(y_test, y_pred) * 100))
 # train: confusion matrix
 #train_cm = confusion_matrix(y_train, train_pred)
 #print(train_cm)
+
+plt.show()
