@@ -48,18 +48,21 @@ class NeuralNet_By_Numpy(object):
         h_layers = [neuron_cnt for neuron_cnt in hidden_layers] + [Y_size]
 
         self.W = list()  # list of weight matrix for each layer: hidden layers & last output layer
-        self.H = list()  # list of matrix [#datapoint x neuron count] for each layer: hidden layers & last output layer
 
         X_size = X.shape[1]  # neuron count of X
         left_neuron_cnt = X_size
         for neuron_cnt in h_layers:
             ww = np.random.randn(left_neuron_cnt, neuron_cnt)
-            hh = np.full((batch_size, neuron_cnt), -0.0001)
             self.W.append(ww)
-            self.H.append(hh)
             left_neuron_cnt = neuron_cnt
 
-        self.DEBUG = True
+    @property
+    def h_layer_cnt(self):
+        """
+        Including hidden layers & last output layer
+        :return:
+        """
+        return len(self.W)
 
     @staticmethod
     def sigmoid(s):
@@ -73,8 +76,8 @@ class NeuralNet_By_Numpy(object):
         # for each batch
         for X_Y in self.batch_X_Y:
             X, Y = X_Y[0], X_Y[1]
-            self.__forward(X)
-            self.__backward(X, Y)
+            H_out = self.__forward(X)
+            self.__backward(X, Y, H_out)
 
     def iteration_predict(self):
         x_train = np.concatenate(([ite[0] for ite in self.batch_X_Y]), axis=0)
@@ -88,7 +91,7 @@ class NeuralNet_By_Numpy(object):
         ----------
         X : ndarray of shape (n_samples, n_features)
         """
-        res = self.__forward(X)
+        res = self.__forward(X)[-1]
         return self.__squeeze_back_output(res)
 
     def __squeeze_back_output(self, output):
@@ -97,26 +100,38 @@ class NeuralNet_By_Numpy(object):
         return output
 
     def __forward(self, X):
+        """
+        :param X:
+        :return: H_out: list of matrix [#datapoint x neuron count] for each layer: hidden layers & last output layer
+        """
         left_mt = X
-        for idx in range(len(self.H)):
+        H_out = [None for _ in range(self.h_layer_cnt)]
+        for idx in range(self.h_layer_cnt):
             net_H_idx = np.dot(left_mt, self.W[idx])
-            self.H[idx] = self.sigmoid(net_H_idx)
-            left_mt = self.H[idx]
+            H_out[idx] = self.sigmoid(net_H_idx)
+            left_mt = H_out[idx]
 
-        return self.H[-1]
+        return H_out
 
-    def __backward(self, X, Y):
-        delta_H = [None for _ in range(len(self.H))]
-        # delta: start initially from last layer H[-1] (output)
-        delta_H[-1] = (Y - self.H[-1]) * self.sigmoid_prime(self.H[-1])
+    def __backward(self, X, Y, H_out):
+        """
+        Back propagation
+        :param X:
+        :param Y:
+        :param H_out: list of matrix [#datapoint x neuron count] for each layer: hidden layers & last output layer
+        :return:
+        """
+        delta_H = [None for _ in range(self.h_layer_cnt)]
+        # delta: start initially from last layer H_out[-1] (output)
+        delta_H[-1] = (Y - H_out[-1]) * self.sigmoid_prime(H_out[-1])
         # then delta: reversed loop from semi-last element (last hidden layer) -> 1st hidden layer
-        for idx in range(len(self.H)-2, -1, -1):
-            delta_H[idx] = delta_H[idx+1].dot(self.W[idx+1].T) * self.sigmoid_prime(self.H[idx])
+        for idx in range(self.h_layer_cnt-2, -1, -1):
+            delta_H[idx] = delta_H[idx+1].dot(self.W[idx+1].T) * self.sigmoid_prime(H_out[idx])
 
         # update weights: from right most layer to one before 1st hidden layer
         for idx in range(len(self.W)-1, 0, -1):
-            #self.W[idx] += (1 / self.train_cnt) * self.eta * self.H[idx-1].T.dot(delta_H[idx])
-            self.W[idx] += self.H[idx-1].T.dot(delta_H[idx])
+            #self.W[idx] += (1 / self.train_cnt) * self.eta * H_out[idx-1].T.dot(delta_H[idx])
+            self.W[idx] += H_out[idx-1].T.dot(delta_H[idx])
         # update weights: at layer W0 back to input
         #self.W[0] += (1 / self.train_cnt) * self.eta * self.X.T.dot(delta_H[0])
         self.W[0] += X.T.dot(delta_H[0])
