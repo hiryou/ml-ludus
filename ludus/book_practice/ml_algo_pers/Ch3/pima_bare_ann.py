@@ -40,7 +40,7 @@ SMALL_TRAIN_DS = '/diabetes.csv'
 BIG_TRAIN_DS = '/diabetes75pc_100_times.csv'
 DATASET_CSV_FILE = os.getcwd() + BIG_TRAIN_DS
 
-EPOCH = 100
+EPOCH = 49
 
 
 df_orig = pd.read_csv(DATASET_CSV_FILE)
@@ -78,7 +78,7 @@ print(f'-- y_train shape: {y_train.shape}')
 
 # start training
 print('Training..')
-nnet = NeuralNet_By_Numpy(X_train, y_train, batch_size=16, hidden_layers=[16, 32])
+nnet = NeuralNet_By_Numpy(X_train, y_train, batch_size=16, hidden_layers=[128])
 for _ in range(EPOCH):
     nnet.iteration_train()
     y_pred = nnet.iteration_predict()
