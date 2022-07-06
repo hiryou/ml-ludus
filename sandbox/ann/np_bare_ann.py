@@ -108,7 +108,7 @@ class NeuralNet_By_Numpy(object):
         :return: H_out: list of matrix [#datapoint x neuron count] for each layer: hidden layers & last output layer
         """
         left_mt = X
-        H_out = [None for _ in range(self.h_layer_cnt)]
+        H_out = [None] * self.h_layer_cnt
         for idx in range(self.h_layer_cnt):
             net_H_idx = left_mt @ self.W[idx] + self.W_bias[idx]    # A @ B means A dot-product B
             H_out[idx] = self.sigmoid(net_H_idx)
@@ -124,7 +124,7 @@ class NeuralNet_By_Numpy(object):
         :param H_out: list of matrix [#datapoint x neuron count] for each layer: hidden layers & last output layer
         :return:
         """
-        delta_H = [None for _ in range(self.h_layer_cnt)]
+        delta_H = [None] * self.h_layer_cnt
         # delta: start initially from last layer H_out[-1] (output)
         delta_H[-1] = (Y - H_out[-1]) * self.sigmoid_prime(H_out[-1])
         # then delta: reversed loop from semi-last element (last hidden layer) -> 1st hidden layer
@@ -137,6 +137,9 @@ class NeuralNet_By_Numpy(object):
         # a vector shape (3, ) dot a matrix (3, 5) -> a new vector (5, )
         # so basically, we take the vector and dot with each col-vector of the matrix on the right. The result is a new
         # vector of length == the number of rows in the matrix
+        # A better explanation: https://bic-berkeley.github.io/psych-214-fall-2016/dot_outer.html#dot-vectors-and-matrices
+        #   * if vector x . matrix A -> left-side vector is a row vector
+        #   * if matrix A . vector x -> right-side vector is a col vector
 
         # update weights: from right most layer to one before 1st hidden layer
         for idx in range(self.h_layer_cnt-1, 0, -1):

@@ -25,7 +25,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-from sandbox.ann.bare_ann import NeuralNet_By_Numpy
+from sandbox.ann.np_bare_ann import NeuralNet_By_Numpy
 
 
 def do_confusion_matrix(y_train, y_pred, plt):
